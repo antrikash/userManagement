@@ -25,7 +25,6 @@ class Pagination extends React.Component {
         </li>
       );
     }
-    console.log(arr);
     return arr;
   };
   render() {

@@ -3,63 +3,57 @@ import ReactDOM from "react-dom";
 
 import "./styles.css";
 import Pagination from "./Pagination";
+import Categories from "./Categories";
+import Header from "./Header";
+
+import moment from "moment";
+
 class App extends React.Component {
   state = {
     data: [],
     page: 1,
-    totalPages: null
+    totalPages: null,
+    sizeOfPost: 25
   };
 
-  fetch2() {
-    const URL = `https://reqres.in/api/users?page=${this.state.page}`;
+  fetchPost() {
+    const URL = `https://public-api.wordpress.com/rest/v1.1/sites/truecaller.blog/posts/?number=${
+      this.state.sizeOfPost
+    }`;
     fetch(URL)
       .then(function(response) {
         return response.json();
       })
       .then(x => {
         this.setState({
-          data: x.data,
-          page: x.page,
-          totalPages: x.total_pages
+          data: x.posts
         });
       });
   }
 
   componentDidMount() {
-    this.fetch2();
+    this.fetchPost();
   }
 
-  removeData = id => {
-    const data = this.state.data;
-    const newData = data.filter(e => e.id !== id);
-    console.log("XYZ", newData);
-    this.setState({
-      data: newData
-    });
-  };
   // words.filter(word => word.length > 6);
   func = () => {
-    var d = this.state.data;
-    return d.map((el, i) => {
+    const data = this.state.data;
+
+    console.log(data);
+    return data.map(el => {
       return (
-        <tr key={i}>
-          <th scope="row">{el.id}</th>
-          <td>
-            <img alt="profile" className="icon" src={el.avatar} />
-          </td>
-          <td>{el.first_name}</td>
-          <td>{el.last_name}</td>
-          <td>
-            <button class="btn btn-secondary">Edit</button>
-            <span> </span>
-            <button
-              onClick={() => this.removeData(el.id)}
-              class="btn btn-danger"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
+        <div key={el.ID} class="card mb-3">
+          <img src={el.post_thumbnail.URL} class="card-img-top" alt="..." />
+          <div class="card-body">
+            <h5 class="card-title">{el.title}</h5>
+            <p class="card-text">{el.excerpt}</p>
+            <p class="card-text">
+              <small class="text-muted">
+                <time>{moment(el.modified).fromNow()}</time>
+              </small>
+            </p>
+          </div>
+        </div>
       );
     });
   };
@@ -74,26 +68,20 @@ class App extends React.Component {
   };
   render() {
     return (
-      <div class="container">
-        <div class="panel-body">
-          <div class="table-responsive">
-            <table class="table table-striped table-dark">
-              <thead>
-                <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">AVATAR</th>
-                  <th scope="col">First Name</th>
-                  <th scope="col">Last Name</th>
-                  <th scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody>{this.state.data.length > 0 && this.func()}</tbody>
-            </table>
+      <div>
+        <div>
+          <Header />
+        </div>
+        <div className="container">
+          <div className="panel-body ">
+            {this.state.data.length > 0 && this.func()}
+
             <Pagination
               page={this.state.page}
               totalPages={this.state.totalPages}
               pageChange={this.pageChange}
             />
+            <Categories />
           </div>
         </div>
       </div>
